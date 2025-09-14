@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Blooms at Night</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --dark-color: #000;
+      --light-color1: #fffb00;
+      --light-color2: #23f0ff;
+    }
+    body {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      min-height: 100vh;
+      background-color: var(--dark-color);
+      overflow: hidden;
+      perspective: 1000px;
+    }
+    body.not-loaded * {
+      animation-play-state: paused !important;
+    }
+
+    .night {
+      position: fixed;
+      left: 50%;
+      top: 0;
+      transform: translateX(-50%);
+      width: 100%;
+      height: 100%;
+      filter: blur(0.1vmin);
+      background-image:
+        radial-gradient(ellipse at top, transparent 0%, var(--dark-color)),
+        radial-gradient(ellipse at bottom, var(--dark-color), rgba(145,233,255,0.2)),
+        repeating-linear-gradient(220deg, #000 0px, #000 19px, transparent 19px, transparent 22px),
+        repeating-linear-gradient(189deg, #000 0px, #000 19px, transparent 19px, transparent 22px),
+        repeating-linear-gradient(148deg, #000 0px, #000 19px, transparent 19px, transparent 22px),
+        linear-gradient(90deg, rgb(0,255,250), rgb(240,240,240));
+    }
+    .flowers {
+      position: relative;
+      transform: scale(0.9);
+    }
+    .flower {
+      position: absolute;
+      bottom: 10vmin;
+      transform-origin: bottom center;
+      z-index: 10;
+    }
+    /* Flower positions */
+    .flower--1 { left: 30%; animation: moving-flower-1 4s linear infinite; }
+    .flower--2 { left: 50%; transform: rotate(20deg); animation: moving-flower-2 4s linear infinite; }
+    .flower--3 { left: 70%; transform: rotate(-15deg); animation: moving-flower-3 4s linear infinite; }
+
+    /* Flower line (stem) */
+    .flower__line {
+      height: 55vmin;
+      width: 1.5vmin;
+      background-image:
+        linear-gradient(to left, rgba(0,0,0,0.2), transparent, rgba(255,255,255,0.2)),
+        linear-gradient(to top, transparent 10%, #14757a, #39c6d6);
+      box-shadow: inset 0 0 2px rgba(0,0,0,0.5);
+      animation: grow-flower-tree 4s backwards;
+      position: relative;
+    }
+    @keyframes grow-flower-tree {
+      0% { height: 0; }
+      100% { height: 55vmin; }
+    }
+
+    /* Stem Leaves */
+    .stem-leaf {
+      position: absolute;
+      width: 6vmin;
+      height: 3vmin;
+      background: linear-gradient(to right, #1a7c3c, #2ecc71);
+      border-radius: 50%;
+      opacity: 0.8;
+    }
+    .stem-leaf.left { left: -6vmin; top: 30%; transform: rotate(-25deg); }
+    .stem-leaf.right { right: -6vmin; top: 55%; transform: rotate(25deg); }
+
+    /* Flower petals (original leaves) */
+    .flower__leafs {
+      position: relative;
+      animation: blooming-flower 2s backwards;
+      animation-delay: 1s;
+    }
+    .flower__leafs::after {
+      content: "";
+      position: absolute;
+      left: 0; top: 0;
+      transform: translate(-50%, -100%);
+      width: 8vmin; height: 8vmin;
+      background-color: #6bf0ff;
+      filter: blur(10vmin);
+    }
+    .flower__leaf {
+      position: absolute;
+      bottom: 0; left: 50%;
+      width: 8vmin; height: 11vmin;
+      border-radius: 51% 49% 47% 53% / 44% 45% 55% 69%;
+      background-color: #a7ffee;
+      background-image: linear-gradient(to top, #54b8aa, #a7ffee);
+      transform-origin: bottom center;
+      opacity: 0.9;
+      box-shadow: inset 0 0 2vmin rgba(255,255,255,0.5);
+    }
+    .flower__leaf--1 { transform: translate(-10%,1%) rotateY(40deg) rotateX(-50deg); }
+    .flower__leaf--2 { transform: translate(-50%,-4%) rotateX(40deg); }
+    .flower__leaf--3 { transform: translate(-90%,0%) rotateY(45deg) rotateX(50deg); }
+    .flower__leaf--4 {
+      width: 8vmin; height: 8vmin;
+      transform-origin: bottom left;
+      border-radius: 4vmin 10vmin 4vmin 4vmin;
+      transform: translate(0%,18%) rotateX(70deg) rotate(-43deg);
+      background-image: linear-gradient(to top, #39c6d6, #a7ffee);
+      z-index: 1; opacity: 0.8;
+    }
+
+    .flower__white-circle {
+      position: absolute;
+      left: -3.5vmin; top: -3vmin;
+      width: 9vmin; height: 4vmin;
+      border-radius: 50%;
+      background-color: #fff;
+    }
+
+    /* Floating lights */
+    .flower__light {
+      position: absolute;
+      bottom: 0vmin;
+      width: 1vmin; height: 1vmin;
+      border-radius: 50%;
+      filter: blur(0.2vmin);
+      animation: light-ans 4s infinite backwards;
+    }
+    .flower__light--1 { left: -2vmin; animation-delay: 1s; background-color: var(--light-color1); }
+    .flower__light--2 { left: 3vmin; animation-delay: 0.5s; background-color: var(--light-color2); }
+    .flower__light--3 { left: -6vmin; animation-delay: 0.3s; background-color: var(--light-color1); }
+    .flower__light--4 { left: 6vmin; animation-delay: 0.9s; background-color: var(--light-color2); }
+
+    @keyframes light-ans {
+      0% { opacity: 0; transform: translateY(0vmin); }
+      25% { opacity: 1; transform: translateY(-5vmin) translateX(-2vmin); }
+      50% { opacity: 1; transform: translateY(-15vmin) translateX(2vmin); filter: blur(0.2vmin); }
+      75% { transform: translateY(-20vmin) translateX(-2vmin); filter: blur(0.2vmin); }
+      100% { transform: translateY(-30vmin); opacity: 0; filter: blur(1vmin); }
+    }
+
+    /* Animations for flowers */
+    @keyframes moving-flower-1 {
+      0%,100% { transform: rotate(0deg); }
+      50% { transform: rotate(2deg); }
+    }
+    @keyframes moving-flower-2 {
+      0%,100% { transform: rotate(20deg); }
+      50% { transform: rotate(23deg); }
+    }
+    @keyframes moving-flower-3 {
+      0%,100% { transform: rotate(-15deg); }
+      50% { transform: rotate(-18deg); }
+    }
+    @keyframes blooming-flower {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    /* Grass */
+    .grass {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 20vmin;
+      overflow: hidden;
+      z-index: 5;
+    }
+    .grass-blade {
+      position: absolute;
+      bottom: 0;
+      width: 1vmin;
+      height: 10vmin;
+      background: linear-gradient(to top, #0a3d24, #1db954);
+      border-radius: 50% 50% 0 0;
+      animation: sway 3s ease-in-out infinite;
+    }
+    @keyframes sway {
+      0%,100% { transform: rotate(0deg); }
+      50% { transform: rotate(5deg); }
+    }
+   .moon {
+      position: absolute;
+      top: 10%;
+      left: 90%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 100px;
+      background: #eef;
+      border-radius: 50%;
+      box-shadow: 0 0 40px 10px #ccf, 0 0 80px 20px #99f;
+      z-index: 0;
+      animation: moonPulse 5s ease-in-out infinite;
+    }
+    @keyframes moonPulse {
+      0%, 100% { box-shadow: 0 0 40px 10px #ccf, 0 0 80px 20px #99f; }
+      50% { box-shadow: 0 0 60px 20px #eef, 0 0 100px 30px #ddf; }
+    }
+    /* Sorry text */
+    .sorry-text {
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 4rem;
+      font-weight: bold;
+      text-shadow: 0 0 15px rgba(255,255,255,0.8);
+      z-index: 20;
+    }
+  </style>
+</head>
+<body class="not-loaded">
+  <div class="night"></div>
+  <div class="moon"></div>
+  <div class="flowers">
+
+    <div class="flower flower--1">
+      <div class="flower__leafs">
+        <div class="flower__leaf flower__leaf--1"></div>
+        <div class="flower__leaf flower__leaf--2"></div>
+        <div class="flower__leaf flower__leaf--3"></div>
+        <div class="flower__leaf flower__leaf--4"></div>
+        <div class="flower__white-circle"></div>
+        <div class="flower__light flower__light--1"></div>
+        <div class="flower__light flower__light--2"></div>
+        <div class="flower__light flower__light--3"></div>
+        <div class="flower__light flower__light--4"></div>
+      </div>
+      <div class="flower__line">
+        <div class="stem-leaf left"></div>
+        <div class="stem-leaf right"></div>
+      </div>
+    </div>
+<audio autoplay loop>
+    <source src="your-song.mp3" type="audio/mpeg">
+C:\Program1\samp project\class11\src\class1.html
+  </audio>
+
+    <div class="flower flower--2">
+      <div class="flower__leafs">
+        <div class="flower__leaf flower__leaf--1"></div>
+        <div class="flower__leaf flower__leaf--2"></div>
+        <div class="flower__leaf flower__leaf--3"></div>
+        <div class="flower__leaf flower__leaf--4"></div>
+        <div class="flower__white-circle"></div>
+        <div class="flower__light flower__light--1"></div>
+        <div class="flower__light flower__light--2"></div>
+        <div class="flower__light flower__light--3"></div>
+        <div class="flower__light flower__light--4"></div>
+      </div>
+      <div class="flower__line">
+        <div class="stem-leaf left"></div>
+        <div class="stem-leaf right"></div>
+      </div>
+    </div>
+
+    <div class="flower flower--3">
+      <div class="flower__leafs">
+        <div class="flower__leaf flower__leaf--1"></div>
+        <div class="flower__leaf flower__leaf--2"></div>
+        <div class="flower__leaf flower__leaf--3"></div>
+        <div class="flower__leaf flower__leaf--4"></div>
+        <div class="flower__white-circle"></div>
+        <div class="flower__light flower__light--1"></div>
+        <div class="flower__light flower__light--2"></div>
+        <div class="flower__light flower__light--3"></div>
+        <div class="flower__light flower__light--4"></div>
+      </div>
+      <div class="flower__line">
+        <div class="stem-leaf left"></div>
+        <div class="stem-leaf right"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Grass field -->
+  <div class="grass" id="grass"></div>
+
+  <!-- Sorry text -->
+  <div class="sorry-text">I'm Sorry...</div>
+
+  <script>
+    window.onload = () => {
+      setTimeout(() => {
+        document.body.classList.remove('not-loaded');
+      }, 1000);
+
+      // Generate grass blades
+      const grass = document.getElementById('grass');
+      for (let i = 0; i < 80; i++) {
+        const blade = document.createElement('div');
+        blade.className = 'grass-blade';
+        blade.style.left = `${Math.random() * 100}%`;
+        blade.style.height = `${8 + Math.random() * 12}vmin`;
+        blade.style.animationDelay = `${Math.random() * 3}s`;
+        grass.appendChild(blade);
+      }
+    };
+  </script>
+</body>
+</html>
